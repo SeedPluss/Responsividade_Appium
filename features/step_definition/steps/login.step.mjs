@@ -1,5 +1,5 @@
-import { inicializar, setarApp } from "../core/driver.mjs";
-import loginPage, * as login from "../pages/login.page.mjs";
+import { inicializar, setarApp } from "../../core/driver.mjs";
+import loginPage, * as login from "../../pages/login.page.mjs";
 import { BeforeAll, Given, When, Then, After } from '@cucumber/cucumber';
 var driver = await inicializar(driver);
 
@@ -12,7 +12,7 @@ After(async() => {
 
 
 Given('Eu estou na tela de login', async () => {
-
+    
 });
   
 When('Eu preencho os dados de Login',{timeout: 30000}, async () => {
