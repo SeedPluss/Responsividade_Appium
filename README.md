@@ -1,0 +1,1 @@
+# Responsividade_Appium_ClaudeMCP
