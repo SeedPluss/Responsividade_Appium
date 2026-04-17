@@ -1,0 +1,32 @@
+.........Console Logs.........
+
+
+── 01_login (28 IDs únicos) ──
+  • login__ui-icon--show-faq-modal
+  • ui-icon__div--icon
+  • ui-icon__img--icon-help
+  • app-change-environment-logo__ui-logo--logo
+  • ui-logo__img--logo
+  • ui-divider__hr--divider
+  • ui-label__txt--txt
+  • login__app-single-login--single-login
+  • single-login__btn--tabPF
+  • single-login__btn--tabPJ
+  • single-login__btn--tabGF
+  • single-login__ui-input--cpf
+  • ui-item__div--item-container
+  • ui-label__txt--floating-label
+  • ui-input__input--input-with-mask
+  • ui-input__txt--wrapper-feedback
+  • single-login__ui-input--password
+  • ui-input__div--icon-eye
+  • ui-icon__img--icon-eye-visible
+  • ui-input__txt--feedback
+  • single-login__app-toggle-label--cpf
+  • toggle-label__txt--label
+  • toggle-label__btn--toggle
+  • ui-toggle__btn--toggle
+  • ui-toggle__btn--toggle-btn
+  • single-login__ui-button--login
+  • ui-button__div--button
+  • single-login__ui-label--register

@@ -1,0 +1,22 @@
+2026-04-16T23:39:24.134Z ERROR webdriver: RequestError: connect ECONNREFUSED 127.0.0.1:49548
+    at ClientRequest.<anonymous> (file:///C:/Users/asold/Desktop/automacao/node_modules/got/dist/source/core/index.js:790:107)
+    at Object.onceWrapper (node:events:634:26)
+    at ClientRequest.emit (node:events:531:35)
+    at ClientRequest.emit (node:domain:488:12)
+    at Socket.socketErrorListener (node:_http_client:500:9)
+    at Socket.emit (node:events:519:28)
+    at Socket.emit (node:domain:488:12)
+    at emitErrorNT (node:internal/streams/destroy:169:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:128:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1606:16)
+2026-04-16T23:39:24.136Z ERROR @wdio/runner: Error: Failed to create session.
+Unable to connect to "http://127.0.0.1:49548/", make sure browser driver is running on that address.
+It seems like the service failed to start or is rejecting any connections.
+    at startWebDriverSession (file:///C:/Users/asold/Desktop/automacao/node_modules/webdriver/build/utils.js:69:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async WebDriver.newSession (file:///C:/Users/asold/Desktop/automacao/node_modules/webdriver/build/index.js:19:45)
+    at async remote (file:///C:/Users/asold/Desktop/automacao/node_modules/webdriverio/build/index.js:46:22)
+    at async Runner._startSession (file:///C:/Users/asold/Desktop/automacao/node_modules/@wdio/runner/build/index.js:241:29)
+    at async Runner._initSession (file:///C:/Users/asold/Desktop/automacao/node_modules/@wdio/runner/build/index.js:207:25)
+    at async Runner.run (file:///C:/Users/asold/Desktop/automacao/node_modules/@wdio/runner/build/index.js:88:19)

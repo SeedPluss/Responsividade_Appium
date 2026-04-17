@@ -1,0 +1,10 @@
+2026-04-17T02:10:24.626Z WARN webdriver: Request failed with status 404 due to A session is either terminated or not started
+2026-04-17T02:10:24.632Z WARN webdriver: Request failed with status 404 due to A session is either terminated or not started
+2026-04-17T02:10:24.636Z WARN webdriver: Request failed with status 404 due to A session is either terminated or not started
+2026-04-17T02:10:24.656Z ERROR webdriver: Request failed with status 404 due to invalid session id: A session is either terminated or not started
+2026-04-17T02:10:24.656Z ERROR @wdio/local-runner: Failed launching test session: invalid session id: A session is either terminated or not started
+    at getErrorFromResponseBody (file:///C:/Users/asold/Desktop/automacao/node_modules/webdriver/build/utils.js:195:12)
+    at NodeJSRequest._request (file:///C:/Users/asold/Desktop/automacao/node_modules/webdriver/build/request/index.js:193:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Browser.wrapCommandFn (file:///C:/Users/asold/Desktop/automacao/node_modules/@wdio/utils/build/shim.js:90:29)
+    at async Runner.endSession (file:///C:/Users/asold/Desktop/automacao/node_modules/@wdio/runner/build/index.js:425:9)
