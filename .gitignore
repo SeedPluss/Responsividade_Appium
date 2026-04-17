@@ -1,2 +1,13 @@
 node_modules
 allure-results
+allure-report
+screenshots
+test-results
+ui_dumps
+bugreport-*.zip
+*.xml
+ui.xml
+ui_login.xml
+ui_faq.xml
+config/app.apk
+*.apk

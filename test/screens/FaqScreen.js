@@ -1,4 +1,4 @@
-const BaseScreen = require('./BaseScreen');
+const BaseScreen = require("./BaseScreen");
 
 /**
  * FaqScreen — tela de Dúvidas Frequentes do app Cresol.
@@ -11,101 +11,142 @@ const BaseScreen = require('./BaseScreen');
  * Configurações → Opções do desenvolvedor → "Depuração USB (Configurações de segurança)"
  */
 class FaqScreen extends BaseScreen {
-
   // ─── Navegação ─────────────────────────────────────────────────────────────
 
   // Ícone de FAQ na tela de login (ponto de entrada)
   get iconeAjuda() {
-    return $('-android uiautomator:new UiSelector().resourceId("login__ui-icon--show-faq-modal")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("ui-icon__img--icon-help")',
+    );
   }
 
   // Botão voltar genérico (ícone "<")
   get botaoVoltar() {
-    return $('-android uiautomator:new UiSelector().resourceId("ui-icon__div--icon").instance(0)');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("ui-icon__img--icon-arrow-large-left")',
+    );
   }
 
   // ─── FAQ Home ───────────────────────────────────────────────────────────────
 
   get tituloPrincipal() {
-    return $('-android uiautomator:new UiSelector().text("Como podemos te ajudar?")');
+    return $(
+      '-android uiautomator:new UiSelector().text("Como podemos te ajudar?")',
+    );
   }
 
   get campoPesquisa() {
-    return $('-android uiautomator:new UiSelector().resourceId("faq__ui-input--search")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("ui-input__input--input")',
+    );
   }
 
   get inputPesquisa() {
-    return $('-android uiautomator:new UiSelector().resourceId("faq__input--search-input")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("ui-input__input--input")',
+    );
   }
 
   get iconeLupa() {
-    return $('-android uiautomator:new UiSelector().resourceId("faq__ui-icon--search")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("ui-icon__img--icon-search-right")',
+    );
   }
 
   // ─── Cards de categoria na FAQ Home ────────────────────────────────────────
 
   get cardAcesso() {
-    return $('-android uiautomator:new UiSelector().text("Acesso")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("card-action-full-with__ui-item-action--item-action").instance(0)',
+    );
   }
 
   get cardQueroSerCooperado() {
-    return $('-android uiautomator:new UiSelector().textContains("Quero ser um cooperado")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("card-action-full-with__ui-item-action--item-action").instance(1)',
+    );
   }
 
   get cardProdutosServicos() {
-    return $('-android uiautomator:new UiSelector().textContains("Produtos e serviços")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("card-action-full-with__ui-item-action--item-action").instance(2)',
+    );
   }
 
   get cardPlanjeFinancas() {
-    return $('-android uiautomator:new UiSelector().textContains("Planeje suas finanças")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("card-action-full-with__ui-item-action--item-action").instance(3)',
+    );
   }
 
   get cardContatos() {
-    return $('-android uiautomator:new UiSelector().text("Contatos")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("ui-menu-item__div--button").instance(0)',
+    );
   }
 
   get cardAgencias() {
-    return $('-android uiautomator:new UiSelector().text("Agências")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("ui-menu-item__div--button").instance(1)',
+    );
   }
 
   get cardAvaliar() {
-    return $('-android uiautomator:new UiSelector().text("Avaliar")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("ui-menu-item__div--button").instance(2)',
+    );
   }
 
   get cardOutrosApps() {
-    return $('-android uiautomator:new UiSelector().text("Outros aplicativos")');
+    return $(
+      '-android uiautomator:new UiSelector().text("Outros aplicativos")',
+    );
   }
 
   get cardCresolCartoes() {
-    return $('-android uiautomator:new UiSelector().text("Cresol cartões")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("faq__list-item-image-arrow-action--app-cartoes")',
+    );
   }
 
   get cardMinhaTag() {
-    return $('-android uiautomator:new UiSelector().text("Minha Tag Cresol")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("faq__list-item-image-arrow-action--app-tag")',
+    );
   }
 
   get cardCresolConsorcios() {
-    return $('-android uiautomator:new UiSelector().text("Cresol Consórcios")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("faq__list-item-image-arrow-action--app-consorcio")',
+    );
   }
 
   // ─── Tela de resultados de busca ────────────────────────────────────────────
 
   get mensagemSemResultados() {
-    return $('-android uiautomator:new UiSelector().text("Nenhum resultado encontrado")');
+    return $(
+      '-android uiautomator:new UiSelector().text("Nenhum resultado encontrado")',
+    );
   }
 
   // ─── Tela de resposta (pergunta expandida) ──────────────────────────────────
 
   get tituloResposta() {
-    return $('-android uiautomator:new UiSelector().resourceId("faq__ui-label--answer-title")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("faq__ui-label--answer-title")',
+    );
   }
 
   get corpoResposta() {
-    return $('-android uiautomator:new UiSelector().resourceId("faq__ui-label--answer-body")');
+    return $(
+      '-android uiautomator:new UiSelector().resourceId("faq__ui-label--answer-body")',
+    );
   }
 
   get labelAvaliarResposta() {
-    return $('-android uiautomator:new UiSelector().text("Essa resposta foi útil?")');
+    return $(
+      '-android uiautomator:new UiSelector().text("Essa resposta foi útil?")',
+    );
   }
 
   get botaoAvaliarSim() {
@@ -117,11 +158,15 @@ class FaqScreen extends BaseScreen {
   }
 
   get mensagemObrigado() {
-    return $('-android uiautomator:new UiSelector().textContains("Obrigado, sua avaliação foi registrada")');
+    return $(
+      '-android uiautomator:new UiSelector().textContains("Obrigado, sua avaliação foi registrada")',
+    );
   }
 
   get mensagemOuvidoria() {
-    return $('-android uiautomator:new UiSelector().textContains("0800 643 1981")');
+    return $(
+      '-android uiautomator:new UiSelector().textContains("0800 643 1981")',
+    );
   }
 
   // ─── Abas em Produtos e Serviços ────────────────────────────────────────────
@@ -152,21 +197,27 @@ class FaqScreen extends BaseScreen {
 
   // ─── Elementos para testes de responsividade ───────────────────────────────
 
+  // Apenas elementos garantidamente visíveis sem scroll (acima do fold)
   get screenElements() {
     return [
       { name: 'Título "Como podemos te ajudar?"', element: this.tituloPrincipal },
-      { name: 'Campo de Pesquisa',                element: this.campoPesquisa   },
-      { name: 'Card Acesso',                      element: this.cardAcesso      },
-      { name: 'Card Quero ser cooperado',         element: this.cardQueroSerCooperado },
-      { name: 'Card Produtos e Serviços',         element: this.cardProdutosServicos  },
-      { name: 'Card Planeje suas finanças',       element: this.cardPlanjeFinancas    },
-      { name: 'Card Contatos',                    element: this.cardContatos          },
+      { name: 'Campo de Pesquisa',                element: this.campoPesquisa },
+      { name: 'Card Acesso',                      element: this.cardAcesso },
+      { name: 'Card Quero ser cooperado',          element: this.cardQueroSerCooperado },
+      { name: 'Card Produtos e Serviços',          element: this.cardProdutosServicos },
+      { name: 'Card Planeje suas finanças',        element: this.cardPlanjeFinancas },
     ];
   }
 
   // ─── Ações compostas ────────────────────────────────────────────────────────
 
   async abrirFaq() {
+    // Fecha a FAQ se estiver aberta para garantir estado limpo ao reabrir
+    const jaAberta = await this.tituloPrincipal.isDisplayed().catch(() => false);
+    if (jaAberta) {
+      await driver.back().catch(() => {});
+      await browser.pause(1500);
+    }
     await this.iconeAjuda.waitForDisplayed({ timeout: 15000 });
     await this.tapElement(this.iconeAjuda);
     await this.tituloPrincipal.waitForDisplayed({ timeout: 15000 });
@@ -194,7 +245,9 @@ class FaqScreen extends BaseScreen {
   }
 
   async abrirPergunta(textoPergunta) {
-    const el = await $(`-android uiautomator:new UiSelector().text("${textoPergunta}")`);
+    const el = await $(
+      `-android uiautomator:new UiSelector().text("${textoPergunta}")`,
+    );
     await el.waitForDisplayed({ timeout: 15000 });
     await this.tapElement(el);
     await this.labelAvaliarResposta.waitForDisplayed({ timeout: 15000 });

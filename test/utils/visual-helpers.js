@@ -16,7 +16,7 @@ async function aguardarEstabilidadeVisual(timeoutMs = 5000, intervaloMs = 500) {
   const inicio = Date.now();
 
   while (Date.now() - inicio < timeoutMs) {
-    const screenshotAtual = await driver.takeScreenshot();
+    const screenshotAtual = await browser.takeScreenshot();
     if (screenshotAtual === screenshotAnterior) return;
     screenshotAnterior = screenshotAtual;
     await browser.pause(intervaloMs);

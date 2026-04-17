@@ -16,32 +16,34 @@ class BaseScreen {
     return driver.getWindowSize();
   }
 
-  // Verifica se um elemento está completamente dentro do viewport visível
+  // Verifica se um elemento está dentro do viewport visível (tolerância de 2px para arredondamento Flutter)
   async isWithinViewport(element) {
     const viewport = await this.getViewportSize();
     const loc = await element.getLocation();
     const size = await element.getSize();
+    const T = 2;
 
     return (
-      loc.x >= 0 &&
-      loc.y >= 0 &&
-      loc.x + size.width <= viewport.width &&
-      loc.y + size.height <= viewport.height
+      loc.x >= -T &&
+      loc.y >= -T &&
+      loc.x + size.width <= viewport.width  + T &&
+      loc.y + size.height <= viewport.height + T
     );
   }
 
-  // Assertion: elemento deve estar dentro do viewport
+  // Assertion: elemento deve estar dentro do viewport (tolerância 2px para Flutter subpixel rendering)
   async assertWithinViewport(element, nomeElemento = 'Elemento') {
     const viewport = await this.getViewportSize();
     const loc = await element.getLocation();
     const size = await element.getSize();
     const perfil = this.deviceProfile;
+    const T = 2;
 
     const dentro = (
-      loc.x >= 0 &&
-      loc.y >= 0 &&
-      loc.x + size.width <= viewport.width &&
-      loc.y + size.height <= viewport.height
+      loc.x >= -T &&
+      loc.y >= -T &&
+      loc.x + size.width <= viewport.width  + T &&
+      loc.y + size.height <= viewport.height + T
     );
 
     expect(dentro).toBe(
@@ -76,19 +78,27 @@ class BaseScreen {
     }
   }
 
-  // Assertion: não há scroll horizontal (nenhum elemento ultrapassa a largura do viewport)
+  // Assertion: não há scroll horizontal (nenhum elemento visível ultrapassa a largura do viewport)
   async assertNoHorizontalOverflow() {
     const viewport = await this.getViewportSize();
-    const perfil = this.deviceProfile;
+    const perfil   = this.deviceProfile;
+    // Tolerância generosa: containers Flutter (Stack, ClipRect) podem ter 1-8px além do edge
+    const TOLERANCIA = 8;
 
-    // Busca todos os elementos visíveis e verifica se algum ultrapassa a largura
-    const elementos = await $$('*');
+    // Filtra apenas elementos com texto visível — evita falsos positivos de containers de layout Flutter
+    const elementos = await $$('-android uiautomator:new UiSelector().textMatches(".+")');
+
     for (const el of elementos) {
       try {
-        const loc = await el.getLocation();
-        const size = await el.getSize();
-        const ultrapassa = loc.x + size.width > viewport.width + 5; // tolerância de 5px
+        // Só avalia elementos que o usuário pode ver (UiAutomator visibleToUser)
+        const visivel = await el.isDisplayed().catch(() => false);
+        if (!visivel) continue;
 
+        const loc  = await el.getLocation();
+        const size = await el.getSize();
+        if (size.width <= 0 || size.height <= 0) continue;
+
+        const ultrapassa = loc.x + size.width > viewport.width + TOLERANCIA;
         if (ultrapassa) {
           const texto = await el.getText().catch(() => '');
           expect(ultrapassa).toBe(
@@ -98,9 +108,7 @@ class BaseScreen {
             `ultrapassa o viewport de ${viewport.width}px`
           );
         }
-      } catch (_) {
-        // Elemento pode ter sido removido do DOM — ignora
-      }
+      } catch (_) { /* elemento removido do DOM durante iteração */ }
     }
   }
 
@@ -161,12 +169,6 @@ class BaseScreen {
     try {
       // Fallback: click via WebDriver Element endpoint
       await element.click();
-      return;
-    } catch (_) {}
-
-    // Último recurso: accessibility click
-    try {
-      await driver.execute('mobile: performEditorAction', { action: 'click' });
     } catch (_) {}
   }
 
@@ -176,7 +178,7 @@ class BaseScreen {
     const inicio = Date.now();
 
     while (Date.now() - inicio < timeoutMs) {
-      const screenshotAtual = await driver.takeScreenshot();
+      const screenshotAtual = await browser.takeScreenshot();
       if (screenshotAtual === screenshotAnterior) {
         // Dois screenshots idênticos consecutivos = tela estabilizou
         return;

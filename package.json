@@ -3,7 +3,8 @@
   "version": "2.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_OPTIONS= npx wdio run wdio.conf.js --autoCompileOpts.autoCompile=false",
+    "test": "cross-env NODE_OPTIONS= DEVICE_FILTER=physical npx wdio run wdio.conf.js --autoCompileOpts.autoCompile=false",
+    "test:all": "cross-env NODE_OPTIONS= DEVICE_FILTER=all npx wdio run wdio.conf.js --autoCompileOpts.autoCompile=false",
     "test:compact": "cross-env NODE_OPTIONS= DEVICE_FILTER=compact npx wdio run wdio.conf.js --autoCompileOpts.autoCompile=false",
     "test:standard": "cross-env NODE_OPTIONS= DEVICE_FILTER=standard npx wdio run wdio.conf.js --autoCompileOpts.autoCompile=false",
     "test:large": "cross-env NODE_OPTIONS= DEVICE_FILTER=large npx wdio run wdio.conf.js --autoCompileOpts.autoCompile=false",
@@ -14,9 +15,11 @@
     "report:generate": "npx allure generate allure-results --clean -o allure-report",
     "report:open": "npx allure open allure-report",
     "report": "npm run report:generate && npm run report:open",
-    "capture:faq": "cross-env NODE_OPTIONS= node scripts/capture-faq.js",
-    "test:faq": "cross-env NODE_OPTIONS= DEVICE_FILTER=physical npx wdio run wdio.conf.js --autoCompileOpts.autoCompile=false --spec test/specs/functional/faq.functional.spec.js",
-    "test:faq:responsive": "cross-env NODE_OPTIONS= DEVICE_FILTER=physical npx wdio run wdio.conf.js --autoCompileOpts.autoCompile=false --spec test/specs/responsiveness/faq.responsive.spec.js"
+    "test:faq":"cross-env NODE_OPTIONS= DEVICE_FILTER=physical npx wdio run wdio.conf.js --autoCompileOpts.autoCompile=false --spec test/specs/functional/faq.functional.spec.js",
+    "test:responsive": "cross-env NODE_OPTIONS= DEVICE_FILTER=all npx wdio run wdio.conf.js --autoCompileOpts.autoCompile=false --spec test/specs/responsiveness/login.responsive.spec.js --spec test/specs/responsiveness/faq.responsive.spec.js",
+    "test:faq:responsive": "cross-env NODE_OPTIONS= DEVICE_FILTER=physical npx wdio run wdio.conf.js --autoCompileOpts.autoCompile=false --spec test/specs/responsiveness/faq.responsive.spec.js",
+    "appium": "cross-env NODE_OPTIONS= appium --relaxed-security --port 4723",
+    "appium:inspector": "cross-env NODE_OPTIONS= appium --relaxed-security --port 4723 --allow-cors"
   },
   "author": "",
   "license": "ISC",

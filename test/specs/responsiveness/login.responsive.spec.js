@@ -84,7 +84,10 @@ describe('Login — Responsividade', () => {
     await input.waitForDisplayed({ timeout: 10000 });
     const loc  = await input.getLocation();
     const size = await input.getSize();
-    await driver.touchAction({ action: 'tap', x: Math.round(loc.x + size.width / 2), y: Math.round(loc.y + size.height / 2) })
+    const tapX = Math.round(loc.x + size.width / 2);
+    const tapY = Math.round(loc.y + size.height / 2);
+    await browser.action('pointer', { parameters: { pointerType: 'touch' } })
+      .move({ x: tapX, y: tapY }).down().pause(80).up().perform()
       .catch(() => input.click().catch(() => {}));
     await browser.pause(1500);
     await loginScreen.waitForVisualStability(3000);
