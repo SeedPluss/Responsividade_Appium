@@ -12,22 +12,12 @@ const allureReporter = require('@wdio/allure-reporter').default;
  * @param {string} [opts.severity] - 'blocker'|'critical'|'normal'|'minor'|'trivial'
  * @param {string} [opts.suite]   - Agrupamento adicional no relatório
  */
-function tagTest({ feature, story, severity = 'normal', suite }) {
+function tagTest({ feature, story, severity = 'normal' }) {
   allureReporter.addFeature(feature);
   allureReporter.addStory(story);
   allureReporter.addSeverity(severity);
-  if (suite) allureReporter.addSuite(suite);
-
-  // Label com o perfil de dispositivo atual
-  try {
-    const caps  = browser.capabilities || {};
-    const perfil = caps['custom:deviceProfile'] || {};
-    const device = perfil.name || caps['appium:deviceName'] || 'unknown';
-    allureReporter.addLabel('device', device);
-    if (perfil.widthDp) {
-      allureReporter.addLabel('resolution', `${perfil.widthDp}x${perfil.heightDp}dp`);
-    }
-  } catch (_) { /* browser pode não estar disponível fora de hooks */ }
+  // suite/parentSuite/subSuite são definidos pelo beforeTest do wdio.conf.js
+  // com base no perfil de dispositivo — não sobrescrever aqui
 }
 
 /**

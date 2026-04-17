@@ -1,1 +1,1 @@
-{"reportName":"Allure Report","testRuns":[],"statistic":{"failed":2,"broken":6,"skipped":0,"passed":27,"unknown":0,"total":35},"time":{"start":1776388975483,"stop":1776391812369,"duration":2836886,"minDuration":2,"maxDuration":23975,"sumDuration":272449}}
+{"reportName":"Cresol Mobile — Responsividade & Funcional","testRuns":[],"statistic":{"failed":1,"broken":2,"skipped":0,"passed":96,"unknown":0,"total":99},"time":{"start":1776462088003,"stop":1776463090544,"duration":1002541,"minDuration":68,"maxDuration":12522,"sumDuration":333273}}

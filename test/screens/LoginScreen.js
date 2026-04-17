@@ -25,7 +25,7 @@ class LoginScreen extends BaseScreen {
 
   // Container do campo Chave Multicanal (CPF/CNPJ)
   get containerChaveMulticanal() {
-    return $('-android uiautomator:new UiSelector().resourceId("single-login__ui-input--gf")');
+    return $('-android uiautomator:new UiSelector().resourceId("single-login__ui-input--cpf")');
   }
 
   // Input real do campo Chave Multicanal
@@ -89,7 +89,7 @@ class LoginScreen extends BaseScreen {
       { name: 'Campo Chave Multicanal', element: this.containerChaveMulticanal },
       { name: 'Campo Senha',            element: this.containerSenha },
       { name: 'Botão Entrar',           element: this.botaoEntrar },
-      { name: 'Link Cadastre-se',       element: this.linkCadastrese },
+      // linkCadastrese é texto/label — excluído de touch target checks; validado em teste individual
     ];
   }
 

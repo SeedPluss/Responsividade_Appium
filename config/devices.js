@@ -19,7 +19,6 @@ function resolverApk() {
   return apks[0];
 }
 
-// Caminho absoluto resolvido via path.resolve — evita erros "file not found" por paths relativos
 const APK_PATH = resolverApk();
 
 // ─── Detecção de dispositivo físico ──────────────────────────────────────────
@@ -39,14 +38,16 @@ function obterUdidDispositivoFisico() {
   return null;
 }
 
-// ─── Capabilities base (compartilhadas) ──────────────────────────────────────
+// ─── Capabilities base ────────────────────────────────────────────────────────
 
 const capabilitiesBase = {
   platformName: 'Android',
   'appium:automationName': 'UiAutomator2',
-  'appium:app': APK_PATH,                          // caminho absoluto resolvido dinamicamente
+  'appium:app': APK_PATH,
   'appium:appPackage': 'br.com.confesol.ib.cresol',
   'appium:appActivity': 'br.com.confesol.ib.cresol.MainActivity',
+  'appium:noReset': true,       // preserva instalação entre perfis — só muda a tela
+  'appium:fullReset': false,
   'appium:autoGrantPermissions': true,
   'appium:newCommandTimeout': 300,
   'appium:adbExecTimeout': 120000,
@@ -56,110 +57,98 @@ const capabilitiesBase = {
   'appium:skipUnlock': true,
 };
 
-// Capabilities exclusivas para emuladores AVD
-// noReset: false → reinstala o APK a cada sessão garantindo estado limpo para responsividade
-const capabilitiesEmulador = {
-  ...capabilitiesBase,
-  'appium:noReset': false,
-  'appium:fullReset': false,
-  // Cold boot em HDD pode levar 4+ min — valores conservadores para CI e máquinas lentas
-  'appium:avdLaunchTimeout': 300000,
-  'appium:avdReadyTimeout': 300000,
-  // -no-window: headless (sem janela visível). Remova para depuração visual.
-  // -gpu swiftshader_indirect: renderização por software — compatível com máquinas sem GPU dedicada
-  'appium:avdArgs': '-no-window -no-audio -no-boot-anim -gpu swiftshader_indirect',
-};
-
-// ─── Matriz de emuladores ─────────────────────────────────────────────────────
+// ─── Perfis de tela simulados via ADB ─────────────────────────────────────────
 //
-// Os nomes em appium:avd devem corresponder EXATAMENTE aos AVDs criados no Android Studio.
-// Para listar os AVDs disponíveis: emulator -list-avds
-// Para criar/recriar: npm run setup:emulators
+// Estratégia: o mesmo dispositivo físico roda 3 sessões com tamanhos de tela
+// diferentes, aplicados via "adb shell wm size/density" antes de cada sessão.
+// Isso simula diferentes densidades de ecrã sem necessidade de emuladores.
 //
-// maxInstances no wdio.conf.js controla quantos emuladores rodam em paralelo:
-//   maxInstances: 1  → sequencial (padrão — seguro para qualquer máquina)
-//   maxInstances: 3  → todos em paralelo (requer ≥16GB RAM + SSD NVMe)
+// Cálculo: px = dp × dpi / 160
+// Perfil    | dp (WxH)    | dpi | px (WxH)
+// ----------|-------------|-----|----------
+// compact   | 411 × 731   | 420 | 1080×1920
+// standard  | 411 × 915   | 411 | 1056×2350 → arredondado para 1080×2400
+// large     | 412 × 892   | 560 | 1442×3122 → arredondado para 1440×3120
 
-const EMULADORES = [
+const PERFIS_TELA = [
   {
-    ...capabilitiesEmulador,
-    'appium:avd': 'resp_standard',
-    'appium:deviceName': 'resp_standard',
-    'custom:deviceProfile': {
-      name: 'standard',
-      category: 'standard',
-      avdProfile: 'Pixel 6',
-      widthDp: 411,
-      heightDp: 915,
-      dpi: 411,
-    },
+    name: 'compact',
+    avdProfile: 'Nexus 5X (simulado via ADB)',
+    widthDp: 411, heightDp: 731, dpi: 420,
+    wmSize: '1080x1920', wmDensity: 420,
   },
   {
-    ...capabilitiesEmulador,
-    'appium:avd': 'resp_large',
-    'appium:deviceName': 'resp_large',
-    'custom:deviceProfile': {
-      name: 'large',
-      category: 'large',
-      avdProfile: 'Pixel 5',
-      widthDp: 412,
-      heightDp: 892,
-      dpi: 560,
-    },
+    name: 'standard',
+    avdProfile: 'Pixel 6 (simulado via ADB)',
+    widthDp: 411, heightDp: 915, dpi: 411,
+    wmSize: '1080x2400', wmDensity: 411,
+  },
+  {
+    name: 'large',
+    avdProfile: 'Pixel 7 Pro (simulado via ADB)',
+    widthDp: 412, heightDp: 892, dpi: 560,
+    wmSize: '1440x3120', wmDensity: 560,
   },
 ];
 
-// ─── Seleção de dispositivos ──────────────────────────────────────────────────
-
-function capabilitiesFisico() {
-  const udid = obterUdidDispositivoFisico();
-  if (!udid) throw new Error(
-    'Nenhum dispositivo físico encontrado. Conecte um celular via USB com depuração USB ativada.'
-  );
+function gerarCapabilitiesPerfil(udid, perfil) {
   return {
     ...capabilitiesBase,
-    'appium:noReset': true,
-    'appium:fullReset': false,
     'appium:udid': udid,
     'appium:deviceName': udid,
     'custom:deviceProfile': {
-      name: 'physical',
-      category: 'physical',
-      avdProfile: 'Dispositivo físico',
-      widthDp: 0,
-      heightDp: 0,
-      dpi: 0,
+      name: perfil.name,
+      category: perfil.name,
+      avdProfile: perfil.avdProfile,
+      widthDp: perfil.widthDp,
+      heightDp: perfil.heightDp,
+      dpi: perfil.dpi,
+    },
+    // Instruções ADB lidas pelo wdio.conf.js nos hooks beforeSession/afterSession
+    'custom:screenProfile': {
+      wmSize: perfil.wmSize,
+      wmDensity: perfil.wmDensity,
     },
   };
 }
 
+// ─── Seleção de dispositivos ──────────────────────────────────────────────────
+
 function obterDevices() {
   const filter = process.env.DEVICE_FILTER;
 
-  // Filtros de dispositivo único
-  if (filter === 'physical') return [capabilitiesFisico()];
+  const udid = obterUdidDispositivoFisico();
+  if (!udid) throw new Error(
+    'Nenhum dispositivo físico encontrado. Conecte um celular via USB com depuração USB ativada.'
+  );
 
-  if (filter && filter !== 'all') {
-    const filtrados = EMULADORES.filter(
-      (d) => d['custom:deviceProfile'].name === filter
-    );
-    if (filtrados.length === 0) throw new Error(
+  // Perfil específico pelo nome
+  if (filter && filter !== 'all' && filter !== 'physical') {
+    const perfil = PERFIS_TELA.find((p) => p.name === filter);
+    if (!perfil) throw new Error(
       `DEVICE_FILTER="${filter}" inválido. Use: compact, standard, large, physical, all`
     );
-    return filtrados;
+    return [gerarCapabilitiesPerfil(udid, perfil)];
   }
 
-  // DEVICE_FILTER=all ou sem filtro → emuladores + físico em sequência
-  // Ordem: compact → standard → large → físico
-  const fisico = obterUdidDispositivoFisico();
-  const lista  = [...EMULADORES];
-  if (fisico) {
-    lista.push(capabilitiesFisico());
-    console.log('[devices] Suite completa: compact → standard → large → físico');
-  } else {
-    console.log('[devices] Dispositivo físico não conectado — rodando apenas emuladores');
+  // Tela original do dispositivo (sem alteração)
+  if (filter === 'physical') {
+    return [{
+      ...capabilitiesBase,
+      'appium:udid': udid,
+      'appium:deviceName': udid,
+      'custom:deviceProfile': {
+        name: 'physical',
+        category: 'physical',
+        avdProfile: 'Tela original do dispositivo',
+        widthDp: 0, heightDp: 0, dpi: 0,
+      },
+    }];
   }
-  return lista;
+
+  // Sem filtro ou DEVICE_FILTER=all → 3 perfis em sequência no mesmo dispositivo
+  console.log('[devices] Suite completa: compact → standard → large (mesmo dispositivo físico)');
+  return PERFIS_TELA.map((perfil) => gerarCapabilitiesPerfil(udid, perfil));
 }
 
-module.exports = { obterDevices, EMULADORES };
+module.exports = { obterDevices, PERFIS_TELA };

@@ -91,9 +91,25 @@ describe('Login — Responsividade', () => {
       .catch(() => input.click().catch(() => {}));
     await browser.pause(1500);
     await loginScreen.waitForVisualStability(3000);
-    await loginScreen.assertWithinViewport(loginScreen.botaoEntrar, 'Botão Entrar');
-    await driver.hideKeyboard().catch(() => {});
-    await browser.pause(500);
+
+    // Verifica se o botão permanece na accessibility tree com teclado aberto.
+    // Em telas compactas o Flutter pode desmontar o elemento quando o teclado empurra o conteúdo.
+    const entrar = await loginScreen.botaoEntrar;
+    try {
+      const existe = await entrar.isExisting().catch(() => false);
+      expect(existe).toBe(
+        true,
+        `Botão Entrar não está acessível (removido da accessibility tree) com teclado aberto no device '${loginScreen.deviceProfile.name}'`
+      );
+      if (existe) {
+        await loginScreen.assertWithinViewport(entrar, 'Botão Entrar');
+      }
+    } finally {
+      // Cleanup sempre executa — garante que o teclado fecha e o botão volta antes do próximo teste
+      await browser.hideKeyboard().catch(() => {});
+      await loginScreen.botaoEntrar.waitForExist({ timeout: 8000 }).catch(() => {});
+      await browser.pause(500);
+    }
   });
 
   // ─── Integridade completa ─────────────────────────────────────────────────

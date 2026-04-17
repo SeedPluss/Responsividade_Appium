@@ -1,3 +1,0 @@
-.........Console Logs.........
-
-[SKIP] element ("-android uiautomator:new UiSelector().textContains("Planeje")") still not displayed after 15000ms

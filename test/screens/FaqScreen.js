@@ -35,12 +35,14 @@ class FaqScreen extends BaseScreen {
     );
   }
 
+  // Container completo da busca — usado para assertions de viewport e touch target
   get campoPesquisa() {
     return $(
-      '-android uiautomator:new UiSelector().resourceId("ui-input__input--input")',
+      '-android uiautomator:new UiSelector().resourceId("faq__ui-search--search")',
     );
   }
 
+  // EditText interno — usado para setValue e ações de teclado
   get inputPesquisa() {
     return $(
       '-android uiautomator:new UiSelector().resourceId("ui-input__input--input")',
