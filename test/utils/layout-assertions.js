@@ -68,6 +68,5 @@ async function assertScreenIntegrity(screen) {
 module.exports = {
   assertAllElementsInViewport,
   assertNoOverlaps,
-  assertTouchTargets,
   assertScreenIntegrity,
 };

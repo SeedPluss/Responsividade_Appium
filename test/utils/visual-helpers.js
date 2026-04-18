@@ -52,7 +52,5 @@ async function salvarScreenshotVisual(tag, deviceProfile) {
 }
 
 module.exports = {
-  aguardarEstabilidadeVisual,
-  salvarScreenshot,
   salvarScreenshotVisual,
 };

@@ -4,10 +4,7 @@ allure-report
 screenshots
 test-results
 ui_dumps
+logs
 bugreport-*.zip
-*.xml
-ui.xml
-ui_login.xml
-ui_faq.xml
-config/app.apk
 *.apk
+*.png
