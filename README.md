@@ -10,15 +10,15 @@ Cobre testes de **responsividade** (viewport, overlaps, overflow, touch targets,
 
 ## Stack Técnica
 
-| Camada | Tecnologia | Versão |
-|--------|------------|--------|
-| Runtime | Node.js | ≥ 18.0.0 |
-| Framework de testes | WebdriverIO | 8.40.x |
-| Driver mobile | Appium | 2.5.4 |
-| Driver Android | UiAutomator2 | 3.10.0 |
-| Relatórios | Allure Report | 2.29.x |
-| Visual regression | @wdio/visual-service | 5.2.x |
-| Linguagem | JavaScript (CommonJS) | ES2020 |
+| Camada              | Tecnologia            | Versão   |
+| ------------------- | --------------------- | -------- |
+| Runtime             | Node.js               | ≥ 18.0.0 |
+| Framework de testes | WebdriverIO           | 8.40.x   |
+| Driver mobile       | Appium                | 2.5.4    |
+| Driver Android      | UiAutomator2          | 3.10.0   |
+| Relatórios          | Allure Report         | 2.29.x   |
+| Visual regression   | @wdio/visual-service  | 5.2.x    |
+| Linguagem           | JavaScript (CommonJS) | ES2020   |
 
 ---
 
@@ -26,12 +26,12 @@ Cobre testes de **responsividade** (viewport, overlaps, overflow, touch targets,
 
 ### Software obrigatório
 
-| Ferramenta | Versão mínima | Como verificar |
-|------------|---------------|----------------|
-| Node.js | 18.0.0 | `node --version` |
-| JDK (Java) | 11 | `java -version` |
-| Android SDK (via Android Studio) | API 24+ | `adb --version` |
-| Allure CLI (relatórios) | 2.x | `allure --version` |
+| Ferramenta                       | Versão mínima | Como verificar     |
+| -------------------------------- | ------------- | ------------------ |
+| Node.js                          | 18.0.0        | `node --version`   |
+| JDK (Java)                       | 11            | `java -version`    |
+| Android SDK (via Android Studio) | API 24+       | `adb --version`    |
+| Allure CLI (relatórios)          | 2.x           | `allure --version` |
 
 ### Variáveis de ambiente do sistema
 
@@ -100,23 +100,24 @@ VISUAL_UPDATE=false
 
 ### Dispositivo físico (execução padrão)
 
-| Campo | Valor |
-|-------|-------|
-| Detecção | Automática via `adb devices` |
-| `noReset` | `true` — preserva estado entre sessões |
-| Pré-requisito | USB + depuração ativa |
+| Campo         | Valor                                  |
+| ------------- | -------------------------------------- |
+| Detecção      | Automática via `adb devices`           |
+| `noReset`     | `true` — preserva estado entre sessões |
+| Pré-requisito | USB + depuração ativa                  |
 
 ### Emuladores (AVD) — suspenso
 
 > O app não executa em emuladores no build atual devido ao Dynatrace RASP.  
 > Os AVDs estão configurados e prontos para quando um build de QA sem proteção for disponibilizado.
 
-| Perfil | AVD Name | Resolução (dp) | DPI | Device |
-|--------|----------|----------------|-----|--------|
-| `standard` | `resp_standard` | 411 × 915 dp | 411 | Pixel 6 |
-| `large` | `resp_large` | 412 × 892 dp | 560 | Pixel 5 |
+| Perfil     | AVD Name        | Resolução (dp) | DPI | Device  |
+| ---------- | --------------- | -------------- | --- | ------- |
+| `standard` | `resp_standard` | 411 × 915 dp   | 411 | Pixel 6 |
+| `large`    | `resp_large`    | 412 × 892 dp   | 560 | Pixel 5 |
 
 Para recriar os AVDs:
+
 ```bash
 npm run setup:emulators
 ```
@@ -131,12 +132,12 @@ standard → large → físico
 
 ## Dados do App
 
-| Campo | Valor |
-|-------|-------|
-| Package | `br.com.confesol.ib.cresol` |
-| Activity | `br.com.confesol.ib.cresol.MainActivity` |
-| Min SDK | 24 (Android 7.0) |
-| Plataforma | Flutter (Android) |
+| Campo      | Valor                                    |
+| ---------- | ---------------------------------------- |
+| Package    | `br.com.confesol.ib.cresol`              |
+| Activity   | `br.com.confesol.ib.cresol.MainActivity` |
+| Min SDK    | 24 (Android 7.0)                         |
+| Plataforma | Flutter (Android)                        |
 
 ---
 
@@ -155,17 +156,17 @@ npm run appium:inspector
 
 ### Rodar os testes
 
-| Comando | Dispositivos | Specs |
-|---------|-------------|-------|
-| `npm test` | físico | todos |
-| `npm run test:all` | standard → large → físico | todos |
-| `npm run test:physical` | só físico | todos |
-| `npm run test:standard` | só standard | todos |
-| `npm run test:large` | só large | todos |
-| `npm run test:responsive` | standard → large → físico | responsividade |
-| `npm run test:faq` | só físico | FAQ funcional |
-| `npm run test:faq:responsive` | só físico | FAQ responsividade |
-| `npm run test:debug` | standard | todos + `--inspect` |
+| Comando                       | Dispositivos              | Specs               |
+| ----------------------------- | ------------------------- | ------------------- |
+| `npm test`                    | físico                    | todos               |
+| `npm run test:all`            | standard → large → físico | todos               |
+| `npm run test:physical`       | só físico                 | todos               |
+| `npm run test:standard`       | só standard               | todos               |
+| `npm run test:large`          | só large                  | todos               |
+| `npm run test:responsive`     | standard → large → físico | responsividade      |
+| `npm run test:faq`            | só físico                 | FAQ funcional       |
+| `npm run test:faq:responsive` | só físico                 | FAQ responsividade  |
+| `npm run test:debug`          | standard                  | todos + `--inspect` |
 
 ### Relatório Allure
 
@@ -229,15 +230,15 @@ automacao/
 
 ### Page Object Model (POM)
 
-| Método (`BaseScreen`) | Descrição |
-|----------------------|-----------|
-| `assertWithinViewport(el, nome)` | Elemento dentro do viewport (tolerância 2px Flutter) |
-| `assertNoHorizontalOverflow()` | Sem scroll horizontal — analisa só elementos com texto visível |
-| `assertNoOverlap(elA, nomeA, elB, nomeB)` | Sem sobreposição entre elementos (tolerância 3px) |
-| `assertMinTouchTarget(el, nome, minDp)` | Touch target ≥ 44dp (WCAG 2.5.5) |
-| `assertNotTruncated(el, nome)` | Elemento não está com largura colapsada |
-| `tapElement(el)` | W3C pointer action → element.click() |
-| `waitForVisualStability(ms)` | Aguarda animações Flutter terminarem |
+| Método (`BaseScreen`)                     | Descrição                                                      |
+| ----------------------------------------- | -------------------------------------------------------------- |
+| `assertWithinViewport(el, nome)`          | Elemento dentro do viewport (tolerância 2px Flutter)           |
+| `assertNoHorizontalOverflow()`            | Sem scroll horizontal — analisa só elementos com texto visível |
+| `assertNoOverlap(elA, nomeA, elB, nomeB)` | Sem sobreposição entre elementos (tolerância 3px)              |
+| `assertMinTouchTarget(el, nome, minDp)`   | Touch target ≥ 44dp (WCAG 2.5.5)                               |
+| `assertNotTruncated(el, nome)`            | Elemento não está com largura colapsada                        |
+| `tapElement(el)`                          | W3C pointer action → element.click()                           |
+| `waitForVisualStability(ms)`              | Aguarda animações Flutter terminarem                           |
 
 ### Fluxo de execução
 
@@ -261,13 +262,6 @@ E AndroidRuntime: com.dynatrace.android.app.MessageGuardException
 E AndroidRuntime:   at com.dynatrace.android.app.ProtectedApplication.onCreate
 W fesol.ib.cresol: avc: denied { read } for userdebug_or_eng_prop
 ```
-
-**Solução pendente com o time de desenvolvimento** (uma das opções):
-1. Build flavor de QA sem o agente Dynatrace — recomendado
-2. `DynatraceConfigurationBuilder.setMessageGuardEnabled(false)` no ambiente de HML
-3. Whitelist de emulador nas regras RASP do Dynatrace Console
-
----
 
 ## Troubleshooting
 
