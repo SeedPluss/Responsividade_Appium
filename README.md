@@ -199,8 +199,7 @@ automacao/
 │   ├── screens/                # Page Objects (Screen Objects)
 │   │   ├── BaseScreen.js       # Assertions de layout, tapElement, waitForVisualStability
 │   │   ├── LoginScreen.js      # Tela de login
-│   │   ├── FaqScreen.js        # Tela de FAQ
-│   │   └── ExtratoScreen.js    # Tela de extrato
+│   │   └── FaqScreen.js        # Tela de FAQ
 │   │
 │   ├── specs/
 │   │   ├── functional/
@@ -211,8 +210,8 @@ automacao/
 │   │
 │   └── utils/
 │       ├── allure-helper.js     # tagTest(), anexarScreenshot()
-│       ├── layout-assertions.js # assertAllElementsInViewport(), assertNoOverlaps()
-│       └── visual-helpers.js    # aguardarEstabilidadeVisual(), salvarScreenshotVisual()
+│       ├── layout-assertions.js # assertAllElementsInViewport(), assertNoOverlaps(), assertScreenIntegrity()
+│       └── visual-helpers.js    # salvarScreenshotVisual()
 │
 ├── screenshots/
 │   ├── baseline/               # Referências para visual regression
@@ -223,6 +222,44 @@ automacao/
 ├── wdio.conf.js                # Configuração WDIO (capabilities, hooks, Allure, Appium)
 └── package.json
 ```
+
+---
+
+## Por que validamos responsividade com esses asserts?
+
+Apps Flutter compilam a UI em um canvas nativo — nenhum browser engine intervém para reorganizar o layout.  
+Isso significa que se um widget for posicionado errado, truncado ou pequeno demais, **o app simplesmente exibe assim**, sem reclamar.  
+Um `toBeDisplayed()` comum passa mesmo quando o elemento está fora da tela ou sobreposto por outro.
+
+Os cinco tipos de assertion que a suite usa cobrem as falhas reais que um olho humano perceberia em um dispositivo:
+
+### Viewport (`assertWithinViewport`)
+
+Garante que um elemento está **inteiramente dentro da área visível** da tela, sem estar cortado pela borda ou escondido além do fold.  
+Sem isso, um botão pode estar na árvore de acessibilidade (portanto "existente") mas fora do alcance do usuário.  
+Usa tolerância de 2 px para absorver o subpixel rendering do Flutter.
+
+### Overlaps (`assertNoOverlap`)
+
+Verifica que dois elementos **não se sobrepõem**. Em telas compactas, widgets com posicionamento absoluto ou padding reduzido podem colidir — o conteúdo de um encobre o outro.  
+A assertion calcula a área de interseção real e aplica tolerância de 3 px para evitar falsos positivos de arredondamento.
+
+### Overflow (`assertNoHorizontalOverflow`)
+
+Detecta **scroll horizontal não intencional**: qualquer elemento com texto visível cujo limite direito ultrapassa a largura da tela indica que o layout "vazou".  
+Filtrar apenas elementos com texto evita falsos positivos de containers Flutter (Stack, ClipRect) que tecnicamente extrapolam a viewport mas são clippados visualmente.
+
+### Touch Targets (`assertMinTouchTarget`)
+
+Confirma que elementos interativos têm **pelo menos 44 × 44 dp** de área tocável, o mínimo exigido pela WCAG 2.5.5.  
+Em telas com alta densidade (420 dpi), 44 dp = 115 px — fácil de errar em layouts que especificam tamanhos em px fixos.  
+O assert converte pixels para dp usando o DPI real do device e aplica tolerância de 6 dp para compensar a imprecisão do resize ADB.
+
+### Visual Regression (`salvarScreenshotVisual`)
+
+Captura um **screenshot de referência (baseline)** na primeira execução e, nas seguintes, compara pixel a pixel.  
+Qualquer mudança visual — reposicionamento, cor, fonte, ícone alterado — é detectada mesmo que todos os asserts acima passem.  
+Usa `@wdio/visual-service` com threshold configurável (padrão 0,5 % de diferença tolerada).
 
 ---
 
