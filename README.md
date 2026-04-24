@@ -1,7 +1,9 @@
-# Cresol Mobile — Suite de Testes de Responsividade e Funcional
+# Cresol Mobile — Suite de Testes de Responsividade
 
 Automação mobile para o app Cresol (Flutter/Android) usando **WebdriverIO 8 + Appium 2 + UiAutomator2**.  
-Cobre testes de **responsividade** (viewport, overlaps, overflow, touch targets, visual regression) e **funcionais** (FAQ, Login) em múltiplos perfis de dispositivo.
+A suite executa exclusivamente testes de **responsividade** (viewport, overlaps, overflow, touch targets, visual regression) em múltiplos perfis de dispositivo simulados via ADB.  
+
+> Os testes funcionais (FAQ, Login) existem em `test/specs/functional/` mas estão **fora da execução padrão** — servem como referência e podem ser rodados pontualmente.
 
 > **Status atual:** testes executam exclusivamente em **dispositivo físico**.  
 > Os emuladores Android são bloqueados pelo Dynatrace RASP (`MessageGuardException`) presente no build — ver seção [Limitação: Emuladores](#limitação-emuladores).
@@ -98,34 +100,62 @@ VISUAL_UPDATE=false
 
 ## Matriz de Dispositivos
 
-### Dispositivo físico (execução padrão)
+### Estratégia: simulação de tela via ADB no dispositivo físico
 
-| Campo         | Valor                                  |
-| ------------- | -------------------------------------- |
-| Detecção      | Automática via `adb devices`           |
-| `noReset`     | `true` — preserva estado entre sessões |
-| Pré-requisito | USB + depuração ativa                  |
-
-### Emuladores (AVD) — suspenso
-
-> O app não executa em emuladores no build atual devido ao Dynatrace RASP.  
-> Os AVDs estão configurados e prontos para quando um build de QA sem proteção for disponibilizado.
-
-| Perfil     | AVD Name        | Resolução (dp) | DPI | Device  |
-| ---------- | --------------- | -------------- | --- | ------- |
-| `standard` | `resp_standard` | 411 × 915 dp   | 411 | Pixel 6 |
-| `large`    | `resp_large`    | 412 × 892 dp   | 560 | Pixel 5 |
-
-Para recriar os AVDs:
+O Dynatrace RASP embutido no app impede execução em emuladores (ver [Limitação: Emuladores](#limitação-emuladores)).  
+A solução adotada é rodar **todas as sessões no mesmo dispositivo físico**, alterando a resolução e a densidade via ADB antes de cada sessão:
 
 ```bash
-npm run setup:emulators
+adb shell wm size 1080x1920   # redefine resolução
+adb shell wm density 420      # redefine DPI
 ```
+
+O hook `beforeSession` aplica o resize; o `afterSession` restaura os valores originais (`wm size reset` + `wm density reset`).  
+Assim um único celular simula três classes de ecrã sem precisar de múltiplos aparelhos.
+
+---
+
+### Perfis ativos na suite
+
+Cálculo: `px = dp × dpi / 160`
+
+| Perfil | Referência simulada | dp (L × A) | DPI | Resolução física | Uso típico |
+|--------|---------------------|------------|-----|-----------------|------------|
+| `compact` | Nexus 5X / iPhone SE | 411 × 731 dp | 420 | **1080 × 1920 px** | Celulares compactos e com 3–4 anos de uso — menor viewport disponível que ainda tem market share relevante |
+| `standard` | Pixel 6 / Galaxy A54 | 411 × 915 dp | 411 | **1080 × 2400 px** | Linha mid-range atual — proporção 20:9 que domina o mercado brasileiro em 2024–2025 |
+| `large` | Pixel 7 Pro / Galaxy S23+ | 412 × 892 dp | 560 | **1440 × 3120 px** | High-end com alta densidade — estresa padding, tamanhos de fonte e touch targets em DPI elevado |
+
+> **Por que esses três?** Cobrem os extremos de viewport disponível (731 dp vs 915 dp de altura) e os extremos de densidade (411 vs 560 dpi). Um layout que passa em `compact` e `large` tem alta probabilidade de passar nos devices intermediários.
+
+---
+
+### Outros perfis que valem investigar
+
+Os perfis abaixo não estão ativos mas cobrem cenários reais que o conjunto atual não testa:
+
+| Perfil candidato | Referência | dp (L × A) | DPI | Resolução | Justificativa |
+|-----------------|------------|------------|-----|-----------|---------------|
+| `foldable_folded` | Galaxy Z Fold 5 (dobrado) | 373 × 820 dp | 402 | 904 × 2176 px | Viewport de **373 dp de largura** — o mais estreito do mercado atual. Expõe layouts que assumem mínimo de 411 dp |
+| `foldable_unfolded` | Galaxy Z Fold 5 (aberto) | 882 × 820 dp | 373 | 1812 × 1848 px | Proporção quase quadrada (1:1) — testa se o Flutter redimensiona a UI ou exibe com muito espaço vazio |
+| `tablet_small` | Galaxy Tab A8 | 800 × 1280 dp | 160 | 1280 × 2048 px | Tablet de entrada — DPI baixíssimo (160) significa que 44 dp = exatamente 44 px. Touch targets ficam muito menores em px absolutos |
+| `accessibility_large_text` | Qualquer device | 411 × 731 dp | 420 + fonte 200% | 1080 × 1920 px | Mesmo perfil `compact`, mas com `adb shell settings put system font_scale 2.0`. Testa truncamento de texto quando usuário usa fonte grande por acessibilidade |
+
+Para adicionar um perfil, basta incluí-lo no array `PERFIS_TELA` em `config/devices.js` e executar com `DEVICE_FILTER=<nome>`.
+
+---
+
+### Dispositivo físico (tela original)
+
+| Campo     | Valor                                  |
+|-----------|----------------------------------------|
+| Detecção  | Automática via `adb devices`           |
+| `noReset` | `true` — preserva estado entre sessões |
+| Filtro    | `DEVICE_FILTER=physical`               |
 
 ### Ordem de execução na suite completa (`DEVICE_FILTER=all`)
 
 ```
-standard → large → físico
+compact → standard → large
 ```
 
 ---
@@ -156,17 +186,17 @@ npm run appium:inspector
 
 ### Rodar os testes
 
-| Comando                       | Dispositivos              | Specs               |
-| ----------------------------- | ------------------------- | ------------------- |
-| `npm test`                    | físico                    | todos               |
-| `npm run test:all`            | standard → large → físico | todos               |
-| `npm run test:physical`       | só físico                 | todos               |
-| `npm run test:standard`       | só standard               | todos               |
-| `npm run test:large`          | só large                  | todos               |
-| `npm run test:responsive`     | standard → large → físico | responsividade      |
-| `npm run test:faq`            | só físico                 | FAQ funcional       |
-| `npm run test:faq:responsive` | só físico                 | FAQ responsividade  |
-| `npm run test:debug`          | standard                  | todos + `--inspect` |
+| Comando                 | Perfis executados         | Specs                        |
+|-------------------------|---------------------------|------------------------------|
+| `npm test`              | compact → standard → large | todos os specs de responsividade |
+| `npm run test:all`      | compact → standard → large | todos os specs de responsividade |
+| `npm run test:physical` | tela original do device   | todos os specs de responsividade |
+| `npm run test:compact`  | só compact (1080×1920)    | todos os specs de responsividade |
+| `npm run test:standard` | só standard (1080×2400)   | todos os specs de responsividade |
+| `npm run test:large`    | só large (1440×3120)      | todos os specs de responsividade |
+| `npm run test:faq`      | compact → standard → large | `faq.responsive.spec.js`     |
+| `npm run test:login`    | compact → standard → large | `login.responsive.spec.js`   |
+| `npm run test:debug`    | só standard + `--inspect` | todos os specs de responsividade |
 
 ### Relatório Allure
 
@@ -192,34 +222,34 @@ npm run baseline:update
 ```
 automacao/
 ├── config/
-│   ├── devices.js              # Matriz de capabilities (emuladores + físico)
-│   └── setup-emulators.js      # Script de criação dos AVDs
+│   ├── devices.js              # Perfis de tela ADB (compact, standard, large, physical)
+│   └── setup-emulators.js      # Script de criação de AVDs (suspenso — Dynatrace RASP)
 │
 ├── test/
-│   ├── screens/                # Page Objects (Screen Objects)
-│   │   ├── BaseScreen.js       # Assertions de layout, tapElement, waitForVisualStability
-│   │   ├── LoginScreen.js      # Tela de login
-│   │   └── FaqScreen.js        # Tela de FAQ
+│   ├── screens/                # Screen Objects (Page Object Model)
+│   │   ├── BaseScreen.js       # Assertions de layout reutilizáveis (viewport, overlap, overflow, touch target)
+│   │   ├── LoginScreen.js      # Seletores e ações da tela de Login
+│   │   └── FaqScreen.js        # Seletores e ações da tela de FAQ
 │   │
 │   ├── specs/
-│   │   ├── functional/
-│   │   │   └── faq.functional.spec.js   # FAQ01–FAQ22
-│   │   └── responsiveness/
-│   │       ├── login.responsive.spec.js
-│   │       └── faq.responsive.spec.js
+│   │   ├── responsiveness/     # ← specs em execução
+│   │   │   ├── login.responsive.spec.js   # Responsividade da tela de Login
+│   │   │   └── faq.responsive.spec.js     # Responsividade da tela de FAQ
+│   │   └── functional/         # ← fora da execução padrão (referência)
+│   │       └── faq.functional.spec.js     # Cenários funcionais FAQ01–FAQ22
 │   │
 │   └── utils/
-│       ├── allure-helper.js     # tagTest(), anexarScreenshot()
+│       ├── allure-helper.js     # tagTest() — feature, story, severity por cenário
 │       ├── layout-assertions.js # assertAllElementsInViewport(), assertNoOverlaps(), assertScreenIntegrity()
-│       └── visual-helpers.js    # salvarScreenshotVisual()
+│       └── visual-helpers.js    # salvarScreenshotVisual() — baseline e comparação
 │
 ├── screenshots/
-│   ├── baseline/               # Referências para visual regression
-│   └── actual/                 # Capturas da última execução
+│   ├── baseline/               # Imagens de referência para visual regression
+│   └── actual/                 # Capturas da última execução (gerado — não commitar)
 │
-├── allure-results/             # Resultados brutos (não comitar)
-├── allure-report/              # Relatório HTML gerado
-├── wdio.conf.js                # Configuração WDIO (capabilities, hooks, Allure, Appium)
+├── allure-results/             # Resultados brutos JSON (gerado — não commitar)
+├── allure-report/              # Relatório HTML (gerado — não commitar)
+├── wdio.conf.js                # Configuração central: capabilities, hooks Allure, perfis ADB
 └── package.json
 ```
 
@@ -342,4 +372,5 @@ adb shell pm clear br.com.confesol.ib.cresol
 1. Novos Screen Objects devem estender `BaseScreen`
 2. Seletores: priorizar `resourceId`, usar `text()` só como fallback
 3. Assertions de posição/layout: usar métodos de `BaseScreen`, não `toBeDisplayed()` puro
-4. Rodar `npm run test:faq` localmente antes de abrir PR
+4. Rodar `npm test` localmente antes de abrir PR (suite completa, 3 perfis)
+5. Novos specs de responsividade vão em `test/specs/responsiveness/` — specs fora dessa pasta não são executados pela suite padrão
